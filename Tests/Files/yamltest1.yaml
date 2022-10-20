@@ -1,0 +1,11 @@
+config1:
+    one: 3
+    two: 4
+    three: null
+config2:
+    anotherone: valueone
+    anothertwo: othervalue
+config3:
+    - onevaluelist
+    - secondvaluelist
+    - thirdvaluelist

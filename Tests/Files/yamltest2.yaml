@@ -1,0 +1,10 @@
+file2config1:
+    - { file2one: 3, file2two: 4, file2three: null }
+    - { file2other: true }
+file2config2:
+    file2anotherone: valueone
+    file2anothertwo: othervalue
+file2config3:
+    - onevaluelist
+    - secondvaluelist
+    - thirdvaluelist
