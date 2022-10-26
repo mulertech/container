@@ -1,9 +1,9 @@
 <?php
 
 
-namespace mtphp\Container\Tests\FakeClass;
+namespace MulerTech\Container\Tests\FakeClass;
 
-use mtphp\Container\Tests\FakeClass\Foo;
+use MulerTech\Container\Tests\FakeClass\Foo;
 
 class Origin
 {

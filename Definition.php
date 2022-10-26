@@ -1,7 +1,7 @@
 <?php
 
 
-namespace mtphp\Container;
+namespace MulerTech\Container;
 
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
@@ -10,7 +10,7 @@ use ReflectionMethod;
 
 /**
  * Class Definition
- * @package mtphp\Container
+ * @package MulerTech\Container
  * @author Sébastien Muler
  */
 class Definition

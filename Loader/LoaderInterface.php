@@ -1,9 +1,12 @@
 <?php
 
+namespace MulerTech\Container\Loader;
 
-namespace mtphp\Container\Loader;
-
-
+/**
+ * Interface LoaderInterface
+ * @package MulerTech\Container\Loader
+ * @author Sébastien Muler
+ */
 interface LoaderInterface
 {
 

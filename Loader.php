@@ -1,7 +1,7 @@
 <?php
 
 
-namespace mtphp\Container;
+namespace MulerTech\Container;
 
 
 use Psr\Container\ContainerInterface;
@@ -9,7 +9,7 @@ use RuntimeException;
 
 /**
  * Class Loader
- * @package mtphp\Container
+ * @package MulerTech\Container
  * @author Sébastien Muler
  */
 class Loader

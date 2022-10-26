@@ -1,11 +1,10 @@
 <?php
 
-
-namespace mtphp\Container;
+namespace MulerTech\Container;
 
 /**
  * Class ParameterCollector
- * @package mtphp\Container
+ * @package MulerTech\Container
  * @author Sébastien Muler
  */
 class ParameterCollector

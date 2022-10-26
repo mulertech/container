@@ -1,0 +1,21 @@
+{
+  "name": "mulertech/container",
+  "description": "The MulerTech dependency injection container",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sébastien Muler",
+      "email": "sebastien.muler@mulertech.net"
+    }
+  ],
+  "require": {
+    "symfony/yaml": "5.*",
+    "psr/container": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MulerTech\\Container\\": "./"
+    }
+  }
+}

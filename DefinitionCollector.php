@@ -1,14 +1,14 @@
 <?php
 
 
-namespace mtphp\Container;
+namespace MulerTech\Container;
 
 use Psr\Container\ContainerInterface;
 use ReflectionException;
 
 /**
  * Class DefinitionCollector
- * @package mtphp\Container
+ * @package MulerTech\Container
  * @author Sébastien Muler
  */
 class DefinitionCollector

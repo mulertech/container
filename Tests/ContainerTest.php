@@ -1,20 +1,25 @@
 <?php
 
-namespace mtphp\Container\Tests;
+namespace MulerTech\Container\Tests;
 
-use mtphp\Container\Container;
-use mtphp\Container\Definition;
-use mtphp\Container\Loader;
-use mtphp\Container\NotFoundException;
+use MulerTech\Container\Container;
+use MulerTech\Container\Definition;
+use MulerTech\Container\Loader;
+use MulerTech\Container\NotFoundException;
 use mtphp\Database\NonRelational\DocumentStore\PathManipulation;
 use PHPUnit\Framework\TestCase;
-use mtphp\Container\Tests\FakeClass\Bar;
-use mtphp\Container\Tests\FakeClass\ControllerFake;
-use mtphp\Container\Tests\FakeClass\ControllerWithConstructFake;
-use mtphp\Container\Tests\FakeClass\Foo;
-use mtphp\Container\Tests\FakeClass\FooInterface;
-use mtphp\Container\Tests\FakeClass\Origin;
+use MulerTech\Container\Tests\FakeClass\Bar;
+use MulerTech\Container\Tests\FakeClass\ControllerFake;
+use MulerTech\Container\Tests\FakeClass\ControllerWithConstructFake;
+use MulerTech\Container\Tests\FakeClass\Foo;
+use MulerTech\Container\Tests\FakeClass\FooInterface;
+use MulerTech\Container\Tests\FakeClass\Origin;
 
+/**
+ * Class ContainerTest
+ * @package MulerTech\Container\Tests
+ * @author Sébastien Muler
+ */
 class ContainerTest extends TestCase
 {
 

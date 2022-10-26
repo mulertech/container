@@ -1,7 +1,7 @@
 <?php
 
 
-namespace mtphp\Container\Tests\FakeClass;
+namespace MulerTech\Container\Tests\FakeClass;
 
 class Bar
 {

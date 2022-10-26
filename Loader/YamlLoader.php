@@ -1,14 +1,14 @@
 <?php
 
 
-namespace mtphp\Container\Loader;
+namespace MulerTech\Container\Loader;
 
 
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class YamlLoader
- * @package mtphp\Container\Loader
+ * @package MulerTech\Container\Loader
  * @author Sébastien Muler
  */
 class YamlLoader implements LoaderInterface
