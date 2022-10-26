@@ -5,6 +5,7 @@ namespace MulerTech\Container\Tests;
 use MulerTech\Container\Container;
 use MulerTech\Container\Definition;
 use MulerTech\Container\Loader;
+use MulerTech\Container\Loader\YamlLoader;
 use MulerTech\Container\NotFoundException;
 use mtphp\Database\NonRelational\DocumentStore\PathManipulation;
 use PHPUnit\Framework\TestCase;
@@ -212,7 +213,7 @@ class ContainerTest extends TestCase
         $loader = new Loader();
         $loader
             ->setFileList(PathManipulation::fileList(__DIR__ . DIRECTORY_SEPARATOR . 'Files'))
-            ->setLoader(Loader\YamlLoader::class)
+            ->setLoader(YamlLoader::class)
             ->loadParameters($container);
         self::assertEquals(3, $container->getParameter('config1.one'));
     }
@@ -223,7 +224,7 @@ class ContainerTest extends TestCase
         $loader = new Loader();
         $loader
             ->setFileList(PathManipulation::fileList(__DIR__ . DIRECTORY_SEPARATOR . 'Files'))
-            ->setLoader(Loader\YamlLoader::class)
+            ->setLoader(YamlLoader::class)
             ->loadParameters($container);
         self::assertEquals([0 => 'onevaluelist', 1 => 'secondvaluelist', 2 => 'thirdvaluelist'], $container->getParameter('config3'));
     }
