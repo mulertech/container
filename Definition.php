@@ -156,7 +156,7 @@ class Definition
                     return (is_string($argument)) ? $container->replaceReferences($argument) : $argument;
                 }
 
-                if ($arg->getClass() === null) {
+                if ($this->getArgumentClass($arg) === null) {
                     if ($arg->isDefaultValueAvailable()) {
                         return $arg->getDefaultValue();
                     }
@@ -171,14 +171,26 @@ class Definition
                 }
 
                 //If argument is a container interface give it the $container
-                if ($arg->getClass()->getName() === ContainerInterface::class) {
+                if ($this->getArgumentClass($arg)->getName() === ContainerInterface::class) {
                     return $container;
                 }
 
-                return $container->get($arg->getClass()->getName());
+                return $container->get($this->getArgumentClass($arg)->getName());
             },
             $method->getParameters()
         );
+    }
+
+    /**
+     * @param \ReflectionParameter $argument
+     * @return ReflectionClass|null
+     * @throws ReflectionException
+     */
+    private function getArgumentClass(\ReflectionParameter $argument): ?ReflectionClass
+    {
+        return $argument->getType() && !$argument->getType()->isBuiltin()
+            ? new ReflectionClass($argument->getType()->getName())
+            : null;
     }
 
 }
