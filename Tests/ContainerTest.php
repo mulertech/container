@@ -7,7 +7,7 @@ use MulerTech\Container\Definition;
 use MulerTech\Container\Loader;
 use MulerTech\Container\Loader\YamlLoader;
 use MulerTech\Container\NotFoundException;
-use mtphp\Database\NonRelational\DocumentStore\PathManipulation;
+use MulerTech\Database\NonRelational\DocumentStore\PathManipulation;
 use PHPUnit\Framework\TestCase;
 use MulerTech\Container\Tests\FakeClass\Bar;
 use MulerTech\Container\Tests\FakeClass\ControllerFake;
