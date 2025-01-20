@@ -8,7 +8,7 @@ class Origin
     private string $test;
     private ?WithParameter $parameter;
 
-    public function __construct(FooInterface $foo, string $test, WithParameter $withParameter = null)
+    public function __construct(FooInterface $foo, string $test, ?WithParameter $withParameter = null)
     {
         $this->foo = $foo;
         $this->test = $test;

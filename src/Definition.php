@@ -50,7 +50,7 @@ class Definition
      * @param array<int|string, mixed> $arguments
      * @param bool $singleton
      */
-    public function __construct(string $id, string $alias = null, array $arguments = [], bool $singleton = false)
+    public function __construct(string $id, ?string $alias = null, array $arguments = [], bool $singleton = false)
     {
         $this->id = $id;
         $this->alias = $alias;

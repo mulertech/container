@@ -68,7 +68,7 @@ class Container implements ContainerInterface
      * @param array<int|string, mixed> $arguments
      * @param bool $singleton
      */
-    public function add(string $id, string $alias = null, array $arguments = [], bool $singleton = false): void
+    public function add(string $id, ?string $alias = null, array $arguments = [], bool $singleton = false): void
     {
         $this->definitionCollector->addDefinition(new Definition($id, $alias, $arguments, $singleton));
     }

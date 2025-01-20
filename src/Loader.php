@@ -85,7 +85,7 @@ class Loader
      * @param array<int|string, mixed> $filesLoaded
      * @param string|null $prefix
      */
-    private function extractParameters(array $filesLoaded, string $prefix = null): void
+    private function extractParameters(array $filesLoaded, ?string $prefix = null): void
     {
         foreach ($filesLoaded as $key => $item) {
             if (is_numeric($key)) {
