@@ -1,9 +1,9 @@
 <?php
 
-
 namespace MulerTech\Container;
 
-use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 
 /**
@@ -14,27 +14,31 @@ use ReflectionException;
 class DefinitionCollector
 {
     /**
-     * @var Definition[]
+     * @var array<class-string, Definition>
      */
-    private $definitions;
+    private array $definitions = [];
 
+    /**
+     * @param array<int, Definition> $definitions
+     */
     public function __construct(array $definitions = [])
     {
-        if (!empty($definitions) && is_array($definitions)) {
-            foreach ($definitions as $definition) {
-                $this->addDefinition($definition);
-            }
+        foreach ($definitions as $definition) {
+            $this->addDefinition($definition);
         }
     }
 
     /**
-     * @param $id
-     * @param ContainerInterface $container
-     * @return object
+     * @template Id of object
+     * @param class-string<Id> $id
+     * @param Container $container
+     * @return object|null
      * @throws NotFoundException
      * @throws ReflectionException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function getDefinition($id, ContainerInterface $container): object
+    public function getDefinition(string $id, Container $container): ?object
     {
         if (!isset($this->definitions[$id])) {
             $this->definitions[$id] = new Definition($id);
@@ -44,10 +48,11 @@ class DefinitionCollector
     }
 
     /**
-     * @param $id
+     * @template Id of object
+     * @param class-string<Id> $id
      * @param object $object
      */
-    public function setDefinition($id, object $object): void
+    public function setDefinition(string $id, object $object): void
     {
         $definition = new Definition($id);
         $definition->setInstance($object);
@@ -55,23 +60,27 @@ class DefinitionCollector
     }
 
     /**
-     * @param $id
+     * @template Id of object
+     * @param class-string<Id> $id
      * @return bool
      */
-    public function hasDefinition($id): bool
+    public function hasDefinition(string $id): bool
     {
         return isset($this->definitions[$id]);
     }
 
     /**
-     * @param string $id
+     * @template Id of object
+     * @param class-string<Id> $id
      * @param string $function
-     * @param ContainerInterface $container
+     * @param Container $container
      * @return mixed
+     * @throws ContainerExceptionInterface
      * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    public function getControllerFunction(string $id, string $function, ContainerInterface $container)
+    public function getControllerFunction(string $id, string $function, Container $container): mixed
     {
         if (!isset($this->definitions[$id])) {
             $this->definitions[$id] = new Definition($id);

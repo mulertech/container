@@ -1,56 +1,58 @@
 <?php
 
-
 namespace MulerTech\Container;
 
-
-use Psr\Container\ContainerInterface;
-use RuntimeException;
+use MulerTech\Container\Loader\LoaderInterface;
+use MulerTech\Container\Loader\LoaderNotFoundException;
 
 /**
  * Class Loader
  * @package MulerTech\Container
  * @author Sébastien Muler
+ * @template T of object
  */
 class Loader
 {
-
     /**
      * The load function name into the loaders.
      */
-    private const LOAD_FUNCTION = 'load';
+    private const string LOAD_FUNCTION = 'load';
 
     /**
-     * @var string[] $loaders
+     * @var array<int, class-string> $loaders
      */
-    private $loaders = [];
+    private array $loaders = [];
     /**
-     * @var array $fileList
+     * @var array<int, string> $fileList
      */
-    private $fileList;
+    private array $fileList;
     /**
-     * @var ContainerInterface
+     * @var Container $container
      */
-    private $container;
+    private Container $container;
 
     /**
-     * @param string $loader
-     * @return Loader
+     * @param class-string $loader
+     * @return Loader<LoaderInterface>
      */
     public function setLoader(string $loader): Loader
     {
         if (!is_callable([$loader, self::LOAD_FUNCTION])) {
-            throw new RuntimeException(
-                sprintf('Class Loader, function setLoader. The "%s" loader don\'t have the load function.', $loader)
+            throw new LoaderNotFoundException(
+                sprintf(
+                    'Class Loader, function setLoader. The "%s" loader doesnt exists or don\'t have the load function.',
+                    $loader
+                )
             );
         }
+
         $this->loaders[] = $loader;
         return $this;
     }
 
     /**
-     * @param array $fileList
-     * @return Loader
+     * @param array<int, string> $fileList
+     * @return Loader<LoaderInterface>
      */
     public function setFileList(array $fileList): Loader
     {
@@ -59,15 +61,16 @@ class Loader
     }
 
     /**
-     * @param ContainerInterface $container
+     * @param Container $container
      * @return void
      */
-    public function loadParameters(ContainerInterface $container): void
+    public function loadParameters(Container $container): void
     {
         $this->container = $container;
         if (!empty($this->fileList)) {
             foreach ($this->loaders as $loader) {
-                $this->extractParameters(call_user_func([$loader, 'load'], $this->fileList));
+                /** @var class-string<LoaderInterface> $loader */
+                $this->extractParameters($loader::load($this->fileList));
             }
         }
     }
@@ -79,7 +82,7 @@ class Loader
      * 'firstlevel.secondlevel'
      * with value :
      * ['thirdlevel' => 'some values']
-     * @param array $filesLoaded
+     * @param array<int|string, mixed> $filesLoaded
      * @param string|null $prefix
      */
     private function extractParameters(array $filesLoaded, string $prefix = null): void
@@ -88,6 +91,7 @@ class Loader
             if (is_numeric($key)) {
                 continue;
             }
+
             $key = (is_null($prefix)) ? $key : $prefix . '.' . $key;
             $this->container->setParameter($key, $item);
             if (is_array($item)) {
@@ -95,16 +99,4 @@ class Loader
             }
         }
     }
-//    private function extractParameters(array $filesLoaded, string $prefix = null): void
-//    {
-//        foreach ($filesLoaded as $key => $item) {
-//            if (is_array($item)) {
-//                $this->extractParameters($item, $key);
-//            }
-//            if (!is_numeric($key)) {
-//                $key = (is_null($prefix)) ? $key : $prefix . '.' . $key;
-//                $this->container->setParameter($key, $item);
-//            }
-//        }
-//    }
 }

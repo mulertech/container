@@ -1,16 +1,12 @@
 <?php
 
-
 namespace MulerTech\Container\Tests\FakeClass;
-
-use MulerTech\Container\Tests\FakeClass\Foo;
 
 class Origin
 {
-
-    private $foo;
-    private $test;
-    private $parameter;
+    private FooInterface $foo;
+    private string $test;
+    private ?WithParameter $parameter;
 
     public function __construct(FooInterface $foo, string $test, WithParameter $withParameter = null)
     {
@@ -19,16 +15,8 @@ class Origin
         $this->parameter = $withParameter;
     }
 
-    public function getFoo()
-    {
-        return $this->foo;
-    }
     public function getTest()
     {
         return $this->test;
-    }
-    public function getParameter()
-    {
-        return $this->parameter;
     }
 }

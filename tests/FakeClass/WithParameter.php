@@ -1,10 +1,7 @@
 <?php
 
-
 namespace MulerTech\Container\Tests\FakeClass;
 
-
-interface FooInterface
+class WithParameter
 {
-
 }

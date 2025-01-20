@@ -2,6 +2,8 @@
 
 namespace MulerTech\Container;
 
+use RuntimeException;
+
 /**
  * Class ParameterCollector
  * @package MulerTech\Container
@@ -9,16 +11,19 @@ namespace MulerTech\Container;
  */
 class ParameterCollector
 {
-
-    private const PREG_MATCH_ENV = '/^env\((.+)\)$/';
-    private $parameters = [];
+    private const string PARAMETER_TAG = '%';
+    private const string PREG_MATCH_ENV = '/^env\((.+)\)$/';
+    /**
+     * @var array<int|string, mixed> $parameters
+     */
+    private array $parameters = [];
 
     /**
      * @param string $parameter
      * @return mixed
      * @throws NotFoundException
      */
-    public function get(string $parameter)
+    public function get(string $parameter): mixed
     {
         if (!$this->has($parameter)) {
             throw new NotFoundException(
@@ -33,7 +38,7 @@ class ParameterCollector
      * @param string $parameter
      * @param mixed $value
      */
-    public function set(string $parameter, $value): void
+    public function set(string $parameter, mixed $value): void
     {
         $this->parameters[$parameter] = $value;
     }
@@ -44,13 +49,10 @@ class ParameterCollector
      */
     public function has(string $parameter): bool
     {
-        if (preg_match(self::PREG_MATCH_ENV, $parameter, $result)) {
-            return $this->getEnv($result[1]) !== false;
-        }
-
         if (isset($this->parameters[$parameter])) {
             return true;
         }
+
         return false;
     }
 
@@ -59,7 +61,7 @@ class ParameterCollector
      * @return mixed
      * @throws NotFoundException
      */
-    private function generateParameter(string $parameter)
+    private function generateParameter(string $parameter): mixed
     {
         $value = $this->parameters[$parameter] ?? $parameter;
         return $this->replaceReferences($value);
@@ -70,44 +72,66 @@ class ParameterCollector
      * @return mixed
      * @throws NotFoundException
      */
-    public function replaceReferences(&$value)
+    public function replaceReferences(mixed &$value): mixed
     {
         if (is_array($value)) {
             array_walk_recursive($value, [$this, 'replaceReferences']);
-        } elseif (is_string($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
             $value = $this->replaceParameterReferences($value);
         }
+
         return $value;
     }
 
     /**
-     * @param $value (string input but mixed output)
-     * @return string|array|object
+     * @param string $value
+     * @return string|array<int|string, mixed>|object
      * @throws NotFoundException
      */
-    public function replaceParameterReferences($value)
+    public function replaceParameterReferences(string $value): object|array|string
     {
-        $tag = '%';
         $value = $this->replaceEnv($value);
+
         if (preg_match_all(
-            '/' . $tag . '([A-Za-z0-9]+([-_.]?[A-Za-z0-9]+)+)' . $tag . '/',
+            '/' . self::PARAMETER_TAG . '([A-Za-z0-9]+([-_.]?[A-Za-z0-9]+)+)' . self::PARAMETER_TAG . '/',
             $value,
-            $results
+            $matches
         )) {
-            foreach ($results[0] as $key => $result) {
-                if ($this->has($results[1][$key])) {
-                    $newValue = $this->get($results[1][$key]);
-                    if (is_array($newValue) || is_object($newValue)) {
-                        if ($tag . $results[1][$key] . $tag === $value) {
-                            return $newValue;
-                        }
-                        throw new \RuntimeException(sprintf('Class : ParameterCollector, function : replaceParameterReferences. The container reference (%s) in this value (%s) refers to an array (%s), this can\'t be put into a string.', $results[1][$key], $value, $newValue));
-                    }
-                    $value = str_replace($result, $this->get($results[1][$key]), $value);
-                }
-            }
+            return $this->putParameterReference($value, $matches);
         }
+
         return $value;
+    }
+
+    /**
+     * @param string $originalValue
+     * @param array<int, mixed> $matches
+     * @return string|array<int|string, mixed>|object
+     * @throws NotFoundException
+     */
+    private function putParameterReference(string $originalValue, array $matches): string|array|object
+    {
+        foreach ($matches[0] as $key => $reference) {
+            $parameterKey = $matches[1][$key];
+
+            if (!is_string($parameterKey) || !$this->has($parameterKey)) {
+                continue;
+            }
+
+            $newValue = $this->get($parameterKey);
+
+            if (is_string($newValue)) {
+                $originalValue = str_replace($reference, $this->get($parameterKey), $originalValue);
+                continue;
+            }
+
+            return $newValue;
+        }
+
+        return $originalValue;
     }
 
     /**
@@ -117,16 +141,23 @@ class ParameterCollector
     private function replaceEnv(string $value): string
     {
         if (preg_match(self::PREG_MATCH_ENV, $value, $result)) {
-            return $this->getEnv($result[1]);
+            $env = $this->getEnv($result[1]);
+
+            if ($env === false) {
+                return $value;
+            }
+
+            return $env;
         }
+
         return $value;
     }
 
     /**
      * @param string $name
-     * @return array|false|string
+     * @return false|string
      */
-    private function getEnv(string $name)
+    private function getEnv(string $name): false|string
     {
         return getenv($name);
     }
