@@ -1,9 +1,10 @@
 <?php
 
-
 namespace MulerTech\Container;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 
 /**
@@ -13,69 +14,67 @@ use ReflectionException;
  */
 class Container implements ContainerInterface
 {
-
     /**
      * @var DefinitionCollector
      */
-    protected $definitionCollector;
+    protected DefinitionCollector $definitionCollector;
 
     /**
      * @var ParameterCollector
      */
-    private $parameterCollector;
+    private ParameterCollector $parameterCollector;
 
     /**
      * @var Container $instance of $this
      */
-    private $instance;
+    private Container $instance;
 
     /**
      * Container constructor.
-     * @param Definition[] $definitions
+     * @param array<int, Definition> $definitions
      */
     public function __construct(array $definitions = [])
     {
-        if (!isset($this->definitionCollector)) {
-            $this->definitionCollector = new DefinitionCollector($definitions);
-        }
-        if (!isset($this->parameterCollector)) {
-            $this->parameterCollector = new ParameterCollector();
-        }
-        if (!isset($this->instance)) {
-            $this->instance = $this;
-        }
+        $this->definitionCollector = new DefinitionCollector($definitions);
+        $this->parameterCollector = new ParameterCollector();
+        $this->instance = $this;
     }
 
     /**
-     * @inheritDoc
+     * @param class-string $id
+     * @return object|null
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    public function get($id): object
+    public function get(string $id): ?object
     {
         return $this->definitionCollector->getDefinition($id, $this);
     }
 
     /**
-     * @inheritDoc
+     * @param class-string $id
+     * @return bool
      */
-    public function has($id): bool
+    public function has(string $id): bool
     {
         return $this->definitionCollector->hasDefinition($id);
     }
 
     /**
-     * @param string $id
-     * @param string|null $alias
-     * @param array $arguments
+     * @param class-string $id
+     * @param class-string|null $alias
+     * @param array<int|string, mixed> $arguments
      * @param bool $singleton
      */
-    public function add(string $id, string $alias = null, array $arguments = [], bool $singleton = false): void
+    public function add(string $id, ?string $alias = null, array $arguments = [], bool $singleton = false): void
     {
         $this->definitionCollector->addDefinition(new Definition($id, $alias, $arguments, $singleton));
     }
 
     /**
-     * @param string $id
+     * @param class-string $id
      * @param object $object
      */
     public function set(string $id, object $object): void
@@ -84,13 +83,15 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param string $id
+     * @param class-string $id
      * @param string $function
      * @return mixed
      * @throws NotFoundException
      * @throws ReflectionException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function getControllerFunc(string $id, string $function)
+    public function getControllerFunc(string $id, string $function): mixed
     {
         return $this->definitionCollector->getControllerFunction($id, $function, $this);
     }
@@ -99,7 +100,7 @@ class Container implements ContainerInterface
      * @param string $parameter
      * @param mixed $value
      */
-    public function setParameter(string $parameter, $value): void
+    public function setParameter(string $parameter, mixed $value): void
     {
         $this->parameterCollector->set($parameter, $value);
     }
@@ -109,7 +110,7 @@ class Container implements ContainerInterface
      * @return mixed|null
      * @throws NotFoundException
      */
-    public function getParameter(string $parameter)
+    public function getParameter(string $parameter): mixed
     {
         return $this->parameterCollector->get($parameter);
     }
@@ -128,7 +129,7 @@ class Container implements ContainerInterface
      * @return mixed
      * @throws NotFoundException
      */
-    public function replaceReferences($value)
+    public function replaceReferences(mixed $value): mixed
     {
         $this->parameterCollector->replaceReferences($value);
         return $value;

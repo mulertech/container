@@ -1,8 +1,6 @@
 <?php
 
-
 namespace MulerTech\Container\Loader;
-
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -13,21 +11,22 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlLoader implements LoaderInterface
 {
-
-    private const EXTENSION = 'yaml';
+    private const array EXTENSION = ['yml', 'yaml'];
 
     /**
-     * @param array $fileList
-     * @return array
+     * @param array<int, string> $fileList
+     * @return array<int, mixed>
      */
     public static function load(array $fileList): array
     {
         $fileLoaded = [];
-        foreach ($fileList as $filename) {
-            if (pathinfo($filename, PATHINFO_EXTENSION) === self::EXTENSION) {
+
+        array_map(static function (string $filename) use (&$fileLoaded) {
+            if (in_array(pathinfo($filename, PATHINFO_EXTENSION), self::EXTENSION, true)) {
                 $fileLoaded[] = self::loadFile($filename);
             }
-        }
+        }, $fileList);
+
         return array_merge(...$fileLoaded);
     }
 
@@ -35,7 +34,7 @@ class YamlLoader implements LoaderInterface
      * @param string $filename
      * @return mixed
      */
-    private static function loadFile(string $filename)
+    private static function loadFile(string $filename): mixed
     {
         return Yaml::parseFile($filename);
     }

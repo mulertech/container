@@ -10,16 +10,26 @@
     }
   ],
   "require": {
-    "php": ">=8.2",
+    "php": "^8.3",
+    "mulertech/file-manipulation": "^1",
     "symfony/yaml": "^6",
     "psr/container": "^2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9"
+    "friendsofphp/php-cs-fixer": "^3.6",
+    "mulertech/docker-tests": "^1",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11",
+    "roave/security-advisories": "dev-latest"
   },
   "autoload": {
     "psr-4": {
-      "MulerTech\\Container\\": "./"
+      "MulerTech\\Container\\": "./src"
     }
-  }
+  },
+    "autoload-dev": {
+        "psr-4": {
+        "MulerTech\\Container\\Tests\\": "./tests"
+        }
+    }
 }

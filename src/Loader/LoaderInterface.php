@@ -9,6 +9,9 @@ namespace MulerTech\Container\Loader;
  */
 interface LoaderInterface
 {
-
+    /**
+     * @param array<int, string> $fileList
+     * @return array<int, mixed>
+     */
     public static function load(array $fileList): array;
 }
