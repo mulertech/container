@@ -228,7 +228,7 @@ class ContainerTest extends TestCase
     public function testControllerFunctionDoesntExists(): void
     {
         $container = new Container();
-        $this->expectExceptionMessage('The method "doesntExists" of the controller "MulerTech\Container\Tests\FakeClass\ControllerFake" doesnt exists.');
+        $this->expectExceptionMessage('The method "doesntExists" of the controller "MulerTech\Container\Tests\FakeClass\ControllerFake" doesn\'t exist.');
         $container->getControllerFunc(ControllerFake::class, 'doesntExists');
     }
 
@@ -248,7 +248,9 @@ class ContainerTest extends TestCase
 
     /**
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
     public function testControllerWithConstructAndContainerUpdatedIntoIt(): void
@@ -480,6 +482,15 @@ class ContainerTest extends TestCase
         $container = new Container();
         $container->setParameter('test_env', 'env(test)');
         self::assertEquals('hello world', $container->getParameter('test_env'));
+    }
+
+    public function testGetSeveralEnvParameterOnSameLine(): void
+    {
+        putenv('test=hello world');
+        putenv('test2=hello world 2');
+        $container = new Container();
+        $container->setParameter('test_env', 'env(test) env(test2)');
+        self::assertEquals('hello world hello world 2', $container->getParameter('test_env'));
     }
 
     /**

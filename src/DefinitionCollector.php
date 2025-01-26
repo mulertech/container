@@ -40,11 +40,7 @@ class DefinitionCollector
      */
     public function getDefinition(string $id, Container $container): ?object
     {
-        if (!isset($this->definitions[$id])) {
-            $this->definitions[$id] = new Definition($id);
-        }
-
-        return $this->definitions[$id]->getInstance($container);
+        return $this->getOrCreateDefinition($id)->getInstance($container);
     }
 
     /**
@@ -82,11 +78,7 @@ class DefinitionCollector
      */
     public function getControllerFunction(string $id, string $function, Container $container): mixed
     {
-        if (!isset($this->definitions[$id])) {
-            $this->definitions[$id] = new Definition($id);
-        }
-
-        return $this->definitions[$id]->getControllerFunction($function, $container);
+        return $this->getOrCreateDefinition($id)->getControllerFunction($function, $container);
     }
 
     /**
@@ -97,4 +89,16 @@ class DefinitionCollector
         $this->definitions[$definition->getId()] = $definition;
     }
 
+    /**
+     * @template Id of object
+     * @param class-string<Id> $id
+     * @return Definition
+     */
+    private function getOrCreateDefinition(string $id): Definition
+    {
+        if (!isset($this->definitions[$id])) {
+            $this->definitions[$id] = new Definition($id);
+        }
+        return $this->definitions[$id];
+    }
 }
