@@ -2,8 +2,6 @@
 
 namespace MulerTech\Container;
 
-use RuntimeException;
-
 /**
  * Class ParameterCollector
  * @package MulerTech\Container
@@ -11,8 +9,11 @@ use RuntimeException;
  */
 class ParameterCollector
 {
-    private const string PARAMETER_TAG = '%';
-    private const string PREG_MATCH_ENV = '/^env\((.+)\)$/';
+    private const string PREG_MATCH_PARAMETER = '/%([A-Za-z0-9]+([-_.]?[A-Za-z0-9]+)+)%/';
+    // For the sake of portability (and sanity), environment variable names must :
+    // consist solely of letters, digits, and the underscore ( _ ) and must not begin with a digit.
+    private const string PREG_MATCH_ENV = '/env\(([a-zA-Z_]+[\w_]*)\)/';
+
     /**
      * @var array<int|string, mixed> $parameters
      */
@@ -83,6 +84,10 @@ class ParameterCollector
             $value = $this->replaceParameterReferences($value);
         }
 
+        if (is_string($value)) {
+            $value = $this->replaceEnvReferences($value);
+        }
+
         return $value;
     }
 
@@ -93,13 +98,7 @@ class ParameterCollector
      */
     public function replaceParameterReferences(string $value): object|array|string
     {
-        $value = $this->replaceEnv($value);
-
-        if (preg_match_all(
-            '/' . self::PARAMETER_TAG . '([A-Za-z0-9]+([-_.]?[A-Za-z0-9]+)+)' . self::PARAMETER_TAG . '/',
-            $value,
-            $matches
-        )) {
+        if (preg_match_all(self::PREG_MATCH_PARAMETER, $value, $matches)) {
             return $this->putParameterReference($value, $matches);
         }
 
@@ -138,19 +137,33 @@ class ParameterCollector
      * @param string $value
      * @return string
      */
-    private function replaceEnv(string $value): string
+    public function replaceEnvReferences(string $value): string
     {
-        if (preg_match(self::PREG_MATCH_ENV, $value, $result)) {
-            $env = $this->getEnv($result[1]);
-
-            if ($env === false) {
-                return $value;
-            }
-
-            return $env;
+        if (preg_match_all(self::PREG_MATCH_ENV, $value, $matches)) {
+            return $this->putEnvReference($value, $matches);
         }
 
         return $value;
+    }
+
+    /**
+     * @param string $originalValue
+     * @param array<int, mixed> $matches
+     * @return string
+     */
+    private function putEnvReference(string $originalValue, array $matches): string
+    {
+        foreach ($matches[0] as $key => $reference) {
+            $envKey = $matches[1][$key];
+
+            if (!is_string($envKey) || false === $env = $this->getEnv($envKey)) {
+                continue;
+            }
+
+            $originalValue = str_replace($reference, $env, $originalValue);
+        }
+
+        return $originalValue;
     }
 
     /**

@@ -126,10 +126,10 @@ class Container implements ContainerInterface
 
     /**
      * @param mixed $value
-     * @return mixed
+     * @return string|array<int|string, mixed>
      * @throws NotFoundException
      */
-    public function replaceReferences(mixed $value): mixed
+    public function replaceReferences(mixed $value): string|array
     {
         $this->parameterCollector->replaceReferences($value);
         return $value;

@@ -19,26 +19,6 @@ use ReflectionParameter;
 class Definition
 {
     /**
-     * @var class-string
-     */
-    private string $id;
-
-    /**
-     * @var ?class-string
-     */
-    private ?string $alias;
-
-    /**
-     * @var array<int|string, mixed>
-     */
-    private array $arguments;
-
-    /**
-     * @var bool
-     */
-    private bool $singleton;
-
-    /**
      * @var object $instance
      */
     private object $instance;
@@ -50,12 +30,12 @@ class Definition
      * @param array<int|string, mixed> $arguments
      * @param bool $singleton
      */
-    public function __construct(string $id, ?string $alias = null, array $arguments = [], bool $singleton = false)
-    {
-        $this->id = $id;
-        $this->alias = $alias;
-        $this->arguments = $arguments;
-        $this->singleton = $singleton;
+    public function __construct(
+        private readonly string $id,
+        private readonly ?string $alias = null,
+        private array $arguments = [],
+        private readonly bool $singleton = false
+    ) {
     }
 
     /**
@@ -84,27 +64,14 @@ class Definition
      */
     public function getInstance(Container $container): object
     {
-        if ($this->singleton === false && $this->hasInstance()) {
+        if (!$this->singleton && $this->hasInstance()) {
             return $this->instance;
         }
 
-        if (!class_exists($this->id) && !interface_exists($this->id)) {
-            throw new NotFoundException('The class or interface : ' . $this->id . ' not exists or not accessible.');
-        }
+        $reflexionClass = $this->getReflectionClass();
+        $constructor = $reflexionClass->getConstructor();
 
-        $reflexionClass = new ReflectionClass($this->id);
-
-        if ($reflexionClass->isInterface() || $reflexionClass->isAbstract()) {
-            if (empty($this->alias)) {
-                throw new NotFoundException(
-                    'The alias of this interface or abstract class was not found : ' . $this->id
-                );
-            }
-
-            $reflexionClass = new ReflectionClass($this->alias);
-        }
-
-        if (is_null($constructor = $reflexionClass->getConstructor())) {
+        if (is_null($constructor)) {
             return $this->instance = $reflexionClass->newInstance();
         }
 
@@ -136,7 +103,7 @@ class Definition
         if (!method_exists($controllerInstance, $function)) {
             throw new NotFoundException(
                 sprintf(
-                    'The method "%s" of the controller "%s" doesnt exists.',
+                    'The method "%s" of the controller "%s" doesn\'t exist.',
                     $function,
                     $controllerInstance::class
                 )
@@ -144,7 +111,6 @@ class Definition
         }
 
         $arguments = $this->getInstanceArgs($container, new ReflectionMethod($controllerInstance, $function));
-
         return $controllerInstance->$function(...$arguments);
     }
 
@@ -160,43 +126,48 @@ class Definition
     private function getInstanceArgs(Container $container, ReflectionMethod $method): array
     {
         return array_map(
-            function ($arg) use ($container) {
-                if (isset($this->arguments[$arg->getName()])) {
-                    return $container->replaceReferences($this->arguments[$arg->getName()]);
-                }
-
-                /**
-                 * If the arguments given was a classic array, give them for each arg,
-                 * for give not all arguments you need to give this with this name.
-                 */
-                if (!empty($this->arguments) && isset($this->arguments[0])) {
-                    $argument = array_shift($this->arguments);
-                    return (is_string($argument)) ? $container->replaceReferences($argument) : $argument;
-                }
-
-                if ($this->getArgumentClass($arg) === null) {
-                    if ($arg->isDefaultValueAvailable()) {
-                        return $arg->getDefaultValue();
-                    }
-
-                    throw new NotFoundException(
-                        sprintf(
-                            'The class or interface : %s has a missing argument named : %s.',
-                            $this->id,
-                            $arg->getName()
-                        )
-                    );
-                }
-
-                //If argument is a container interface give it the $container
-                if ($this->getArgumentClass($arg)->getName() === ContainerInterface::class) {
-                    return $container;
-                }
-
-                return $container->get($this->getArgumentClass($arg)->getName());
-            },
+            fn ($arg) => $this->resolveArgument($container, $arg),
             $method->getParameters()
         );
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
+     * @throws NotFoundException
+     */
+    private function resolveArgument(Container $container, ReflectionParameter $arg): mixed
+    {
+        if (isset($this->arguments[$arg->getName()])) {
+            return $container->replaceReferences($this->arguments[$arg->getName()]);
+        }
+
+        if (!empty($this->arguments) && isset($this->arguments[0])) {
+            $argument = array_shift($this->arguments);
+            return is_string($argument) ? $container->replaceReferences($argument) : $argument;
+        }
+
+        if ($this->getArgumentClass($arg) === null) {
+            if ($arg->isDefaultValueAvailable()) {
+                return $arg->getDefaultValue();
+            }
+
+            throw new NotFoundException(
+                sprintf(
+                    'The class or interface : %s has a missing argument named : %s.',
+                    $this->id,
+                    $arg->getName()
+                )
+            );
+        }
+
+        //If argument is a container interface give it the $container
+        if ($this->getArgumentClass($arg)->getName() === ContainerInterface::class) {
+            return $container;
+        }
+
+        return $container->get($this->getArgumentClass($arg)->getName());
     }
 
     /**
@@ -217,5 +188,39 @@ class Definition
         /** @var class-string<T> $className */
         $className = $argumentNamedType->getName();
         return new ReflectionClass($className);
+    }
+
+    /**
+     * @return ReflectionClass<object>
+     * @throws NotFoundException
+     * @throws ReflectionException
+     */
+    private function getReflectionClass(): ReflectionClass
+    {
+        if (!class_exists($this->id) && !interface_exists($this->id)) {
+            throw new NotFoundException(
+                sprintf(
+                    'The class or interface : %s doesn\'t exist or is not accessible.',
+                    $this->id
+                )
+            );
+        }
+
+        $reflexionClass = new ReflectionClass($this->id);
+
+        if ($reflexionClass->isInterface() || $reflexionClass->isAbstract()) {
+            if (empty($this->alias)) {
+                throw new NotFoundException(
+                    sprintf(
+                        'The alias of this interface or abstract class was not found : %s',
+                        $this->id
+                    )
+                );
+            }
+
+            $reflexionClass = new ReflectionClass($this->alias);
+        }
+
+        return $reflexionClass;
     }
 }
