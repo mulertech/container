@@ -300,7 +300,7 @@ class ContainerTest extends TestCase
      */
     public function testGetNotFoundParameter(): void
     {
-        $this->expectExceptionMessage('Class ParameterCollector, function get. The "test" parameter was not found.');
+        $this->expectExceptionMessage('The "test" parameter was not found in ParameterCollector.');
         $container = new Container();
         $container->getParameter('test');
     }
