@@ -28,7 +28,7 @@ class ParameterCollector
     {
         if (!$this->has($parameter)) {
             throw new NotFoundException(
-                sprintf('Class ParameterCollector, function get. The "%s" parameter was not found.', $parameter)
+                sprintf('The "%s" parameter was not found in ParameterCollector.', $parameter)
             );
         }
 
@@ -50,11 +50,7 @@ class ParameterCollector
      */
     public function has(string $parameter): bool
     {
-        if (isset($this->parameters[$parameter])) {
-            return true;
-        }
-
-        return false;
+        return isset($this->parameters[$parameter]);
     }
 
     /**
@@ -83,7 +79,7 @@ class ParameterCollector
         if (is_string($value)) {
             $value = $this->replaceParameterReferences($value);
         }
-
+        // The new $value may not be a string anymore
         if (is_string($value)) {
             $value = $this->replaceEnvReferences($value);
         }
@@ -96,74 +92,42 @@ class ParameterCollector
      * @return string|array<int|string, mixed>|object
      * @throws NotFoundException
      */
-    public function replaceParameterReferences(string $value): object|array|string
+    private function replaceParameterReferences(string $value): object|array|string
     {
         if (preg_match_all(self::PREG_MATCH_PARAMETER, $value, $matches)) {
-            return $this->putParameterReference($value, $matches);
-        }
+            foreach ($matches[1] as $parameterKey) {
+                if (!$this->has($parameterKey)) {
+                    continue;
+                }
 
+                $newValue = $this->get($parameterKey);
+
+                if (!is_string($newValue)) {
+                    return $newValue;
+                }
+
+                $value = str_replace("%$parameterKey%", $newValue, $value);
+            }
+        }
         return $value;
-    }
-
-    /**
-     * @param string $originalValue
-     * @param array<int, mixed> $matches
-     * @return string|array<int|string, mixed>|object
-     * @throws NotFoundException
-     */
-    private function putParameterReference(string $originalValue, array $matches): string|array|object
-    {
-        foreach ($matches[0] as $key => $reference) {
-            $parameterKey = $matches[1][$key];
-
-            if (!is_string($parameterKey) || !$this->has($parameterKey)) {
-                continue;
-            }
-
-            $newValue = $this->get($parameterKey);
-
-            if (is_string($newValue)) {
-                $originalValue = str_replace($reference, $this->get($parameterKey), $originalValue);
-                continue;
-            }
-
-            return $newValue;
-        }
-
-        return $originalValue;
     }
 
     /**
      * @param string $value
      * @return string
      */
-    public function replaceEnvReferences(string $value): string
+    private function replaceEnvReferences(string $value): string
     {
         if (preg_match_all(self::PREG_MATCH_ENV, $value, $matches)) {
-            return $this->putEnvReference($value, $matches);
-        }
+            foreach ($matches[1] as $envKey) {
+                $envValue = $this->getEnv($envKey);
 
-        return $value;
-    }
-
-    /**
-     * @param string $originalValue
-     * @param array<int, mixed> $matches
-     * @return string
-     */
-    private function putEnvReference(string $originalValue, array $matches): string
-    {
-        foreach ($matches[0] as $key => $reference) {
-            $envKey = $matches[1][$key];
-
-            if (!is_string($envKey) || false === $env = $this->getEnv($envKey)) {
-                continue;
+                if ($envValue !== false) {
+                    $value = str_replace("env($envKey)", $envValue, $value);
+                }
             }
-
-            $originalValue = str_replace($reference, $env, $originalValue);
         }
-
-        return $originalValue;
+        return $value;
     }
 
     /**
