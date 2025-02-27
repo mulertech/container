@@ -9,7 +9,6 @@ use MulerTech\Container\Loader\LoaderNotFoundException;
 use MulerTech\Container\Loader\YamlLoader;
 use MulerTech\Container\NotFoundException;
 use MulerTech\Container\Tests\FakeClass\WithConstruct;
-use MulerTech\FileManipulation\PathManipulation;
 use PHPUnit\Framework\TestCase;
 use MulerTech\Container\Tests\FakeClass\Bar;
 use MulerTech\Container\Tests\FakeClass\ControllerFake;
@@ -400,7 +399,7 @@ class ContainerTest extends TestCase
         $this->expectException(LoaderNotFoundException::class);
         $loader = new Loader();
         $loader
-            ->setFileList(PathManipulation::fileList(__DIR__ . DIRECTORY_SEPARATOR . 'Files'))
+            ->setFileList(glob(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . '*'))
             ->setLoader(Loader\BadLoader::class);
     }
 
@@ -413,7 +412,7 @@ class ContainerTest extends TestCase
         $container = new Container();
         $loader = new Loader();
         $loader
-            ->setFileList(PathManipulation::fileList(__DIR__ . DIRECTORY_SEPARATOR . 'Files'))
+            ->setFileList(glob(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . '*'))
             ->setLoader(YamlLoader::class)
             ->loadParameters($container);
         self::assertEquals(3, $container->getParameter('config1.one'));
@@ -428,7 +427,7 @@ class ContainerTest extends TestCase
         $container = new Container();
         $loader = new Loader();
         $loader
-            ->setFileList(PathManipulation::fileList(__DIR__ . DIRECTORY_SEPARATOR . 'Files'))
+            ->setFileList(glob(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . '*'))
             ->setLoader(YamlLoader::class)
             ->loadParameters($container);
         self::assertEquals(
