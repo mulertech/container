@@ -11,7 +11,6 @@
   ],
   "require": {
     "php": "^8.3",
-    "mulertech/file-manipulation": "^1",
     "symfony/yaml": "^6",
     "psr/container": "^2"
   },
