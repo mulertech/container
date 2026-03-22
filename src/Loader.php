@@ -6,9 +6,10 @@ use MulerTech\Container\Loader\LoaderInterface;
 use MulerTech\Container\Loader\LoaderNotFoundException;
 
 /**
- * Class Loader
- * @package MulerTech\Container
+ * Class Loader.
+ *
  * @author Sébastien Muler
+ *
  * @template T of object
  */
 class Loader
@@ -19,57 +20,49 @@ class Loader
     private const string LOAD_FUNCTION = 'load';
 
     /**
-     * @var array<int, class-string> $loaders
+     * @var array<int, class-string>
      */
     private array $loaders = [];
     /**
-     * @var array<int, string> $fileList
+     * @var array<int, string>
      */
     private array $fileList;
-    /**
-     * @var Container $container
-     */
     private Container $container;
 
     /**
      * @param class-string $loader
+     *
      * @return Loader<LoaderInterface>
      */
     public function setLoader(string $loader): Loader
     {
         if (!is_callable([$loader, self::LOAD_FUNCTION])) {
-            throw new LoaderNotFoundException(
-                sprintf(
-                    'Class Loader, function setLoader. The "%s" loader doesnt exists or don\'t have the load function.',
-                    $loader
-                )
-            );
+            throw new LoaderNotFoundException(sprintf('Class Loader, function setLoader. The "%s" loader doesnt exists or don\'t have the load function.', $loader));
         }
 
         $this->loaders[] = $loader;
+
         return $this;
     }
 
     /**
      * @param array<int, string> $fileList
+     *
      * @return Loader<LoaderInterface>
      */
     public function setFileList(array $fileList): Loader
     {
         $this->fileList = $fileList;
+
         return $this;
     }
 
-    /**
-     * @param Container $container
-     * @return void
-     */
     public function loadParameters(Container $container): void
     {
         $this->container = $container;
         if (!empty($this->fileList)) {
             foreach ($this->loaders as $loader) {
-                /** @var class-string<LoaderInterface> $loader */
+                /* @var class-string<LoaderInterface> $loader */
                 $this->extractParameters($loader::load($this->fileList));
             }
         }
@@ -82,8 +75,8 @@ class Loader
      * 'firstlevel.secondlevel'
      * with value :
      * ['thirdlevel' => 'some values']
+     *
      * @param array<int|string, mixed> $filesLoaded
-     * @param string|null $prefix
      */
     private function extractParameters(array $filesLoaded, ?string $prefix = null): void
     {
@@ -92,7 +85,7 @@ class Loader
                 continue;
             }
 
-            $key = (is_null($prefix)) ? $key : $prefix . '.' . $key;
+            $key = (is_null($prefix)) ? $key : $prefix.'.'.$key;
             $this->container->setParameter($key, $item);
             if (is_array($item)) {
                 $this->extractParameters($item, $key);

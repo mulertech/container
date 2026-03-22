@@ -2,13 +2,11 @@
 
 namespace MulerTech\Container\Loader;
 
-use Exception;
-
 /**
- * Class LoaderNotFoundException
- * @package MulerTech\Container
+ * Class LoaderNotFoundException.
+ *
  * @author Sébastien Muler
  */
-class LoaderNotFoundException extends Exception
+class LoaderNotFoundException extends \Exception
 {
 }

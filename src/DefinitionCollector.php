@@ -4,11 +4,10 @@ namespace MulerTech\Container;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use ReflectionException;
 
 /**
- * Class DefinitionCollector
- * @package MulerTech\Container
+ * Class DefinitionCollector.
+ *
  * @author Sébastien Muler
  */
 class DefinitionCollector
@@ -30,11 +29,11 @@ class DefinitionCollector
 
     /**
      * @template Id of object
+     *
      * @param class-string<Id> $id
-     * @param Container $container
-     * @return object|null
+     *
      * @throws NotFoundException
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -45,8 +44,8 @@ class DefinitionCollector
 
     /**
      * @template Id of object
+     *
      * @param class-string<Id> $id
-     * @param object $object
      */
     public function setDefinition(string $id, object $object): void
     {
@@ -57,8 +56,8 @@ class DefinitionCollector
 
     /**
      * @template Id of object
+     *
      * @param class-string<Id> $id
-     * @return bool
      */
     public function hasDefinition(string $id): bool
     {
@@ -67,23 +66,19 @@ class DefinitionCollector
 
     /**
      * @template Id of object
+     *
      * @param class-string<Id> $id
-     * @param string $function
-     * @param Container $container
-     * @return mixed
+     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundException
      * @throws NotFoundExceptionInterface
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     public function getControllerFunction(string $id, string $function, Container $container): mixed
     {
         return $this->getOrCreateDefinition($id)->getControllerFunction($function, $container);
     }
 
-    /**
-     * @param Definition $definition
-     */
     public function addDefinition(Definition $definition): void
     {
         $this->definitions[$definition->getId()] = $definition;
@@ -91,14 +86,15 @@ class DefinitionCollector
 
     /**
      * @template Id of object
+     *
      * @param class-string<Id> $id
-     * @return Definition
      */
     private function getOrCreateDefinition(string $id): Definition
     {
         if (!isset($this->definitions[$id])) {
             $this->definitions[$id] = new Definition($id);
         }
+
         return $this->definitions[$id];
     }
 }

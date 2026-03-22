@@ -1,6 +1,8 @@
 {
   "name": "mulertech/container",
   "description": "The MulerTech dependency injection container",
+  "type": "library",
+  "keywords": ["php", "dependency-injection", "container", "psr-11"],
   "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
@@ -11,14 +13,14 @@
   ],
   "require": {
     "php": "^8.3",
-    "symfony/yaml": "^6",
+    "symfony/yaml": "^6||^7",
     "psr/container": "^2"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.6",
-    "mulertech/docker-dev": "^1",
+    "mulertech/docker-dev": "^3.2",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11",
+    "phpunit/phpunit": "^12",
     "roave/security-advisories": "dev-latest"
   },
   "autoload": {

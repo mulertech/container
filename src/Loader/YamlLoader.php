@@ -5,8 +5,8 @@ namespace MulerTech\Container\Loader;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class YamlLoader
- * @package MulerTech\Container\Loader
+ * Class YamlLoader.
+ *
  * @author Sébastien Muler
  */
 class YamlLoader implements LoaderInterface
@@ -15,6 +15,7 @@ class YamlLoader implements LoaderInterface
 
     /**
      * @param array<int, string> $fileList
+     *
      * @return array<int, mixed>
      */
     public static function load(array $fileList): array
@@ -30,10 +31,6 @@ class YamlLoader implements LoaderInterface
         return array_merge(...$fileLoaded);
     }
 
-    /**
-     * @param string $filename
-     * @return mixed
-     */
     private static function loadFile(string $filename): mixed
     {
         return Yaml::parseFile($filename);
