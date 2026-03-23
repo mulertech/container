@@ -16,7 +16,7 @@ class YamlLoader implements LoaderInterface
     /**
      * @param array<int, string> $fileList
      *
-     * @return array<int, mixed>
+     * @return array<int|string, mixed>
      */
     public static function load(array $fileList): array
     {
@@ -31,8 +31,11 @@ class YamlLoader implements LoaderInterface
         return array_merge(...$fileLoaded);
     }
 
-    private static function loadFile(string $filename): mixed
+    /**
+     * @return array<int|string, mixed>
+     */
+    private static function loadFile(string $filename): array
     {
-        return Yaml::parseFile($filename);
+        return (array) Yaml::parseFile($filename);
     }
 }

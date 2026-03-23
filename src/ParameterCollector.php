@@ -74,11 +74,9 @@ class ParameterCollector
     }
 
     /**
-     * @return string|array<int|string, mixed>|object
-     *
      * @throws NotFoundException
      */
-    private function replaceParameterReferences(string $value): object|array|string
+    private function replaceParameterReferences(string $value): mixed
     {
         if (preg_match_all(self::PREG_MATCH_PARAMETER, $value, $matches)) {
             foreach ($matches[1] as $parameterKey) {
