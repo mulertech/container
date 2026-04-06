@@ -2,7 +2,12 @@
   "name": "mulertech/container",
   "description": "The MulerTech dependency injection container",
   "type": "library",
-  "keywords": ["php", "dependency-injection", "container", "psr-11"],
+  "keywords": [
+    "php",
+    "dependency-injection",
+    "container",
+    "psr-11"
+  ],
   "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
@@ -28,9 +33,12 @@
       "MulerTech\\Container\\": "./src"
     }
   },
-    "autoload-dev": {
-        "psr-4": {
-        "MulerTech\\Container\\Tests\\": "./tests"
-        }
+  "autoload-dev": {
+    "psr-4": {
+      "MulerTech\\Container\\Tests\\": "./tests"
     }
+  },
+  "config": {
+    "sort-packages": true
+  }
 }
