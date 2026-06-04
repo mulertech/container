@@ -1,5 +1,9 @@
 # Release notes for container
 
+## v1.2.0 - 2026-06-04
+
+Add Symfony 8 compatibility (symfony/yaml ^8), while keeping support for Symfony 6 and 7.
+
 ## v1.1.1 - 2024-03-25
 
 ## v1.1.0 - 2023-07-02
